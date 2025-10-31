@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHEF EN CLICK </title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="logo-container">
+                    <div class="logo-circle"></div>
+                    <h1><span class="text-red">//</span> CHEF EN CLICK</h1>
+                </div>
+                <div class="social-icons">
+                    <button class="social-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                        </svg>
+                    </button>
+                    <button class="social-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                        </svg>
+                    </button>
+                    <button class="social-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="login-card">
+                <h2>Bienvenido</h2>
+                <p class="login-subtitle">Inicia sesión para ver nuestro menú</p>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">INICIAR SESIÓN</button>
+                </form>
+                <p class="login-footer">
+                    ¿No tienes cuenta? <a href="#" class="text-red">Regístrate</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="main-app" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="container header-content">
+                <div class="header-left">
+                    <div class="logo-container">
+                        <div class="logo-circle"></div>
+                        <h1><span class="text-red">//</span> FOOD DIVCODE</h1>
+                    </div>
+                    <nav class="nav-desktop">
+                        <a href="#inicio">Inicio</a>
+                        <a href="#nosotros">Nosotros</a>
+                        <a href="#menu">Menú</a>
+                        <a href="#contacto">Contacto</a>
+                    </nav>
+                </div>
+                <div class="header-right">
+                    <div class="social-icons social-desktop">
+                        <button class="social-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                            </svg>
+                        </button>
+                        <button class="social-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                            </svg>
+                        </button>
+                        <button class="social-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <button id="cartBtn" class="btn btn-cart">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        <span id="cartBadge" class="cart-badge" style="display: none;">0</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section id="inicio" class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Bienvenido a Food Divcode</h1>
+                    <p>La mejor comida rápida de la ciudad. Ingredientes frescos, sabores auténticos y un servicio que te encantará.</p>
+                    <div class="hero-buttons">
+                        <a href="#menu" class="btn btn-primary">Ver Menú</a>
+                        <a href="#contacto" class="btn btn-outline">Contacto</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="nosotros" class="about-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-subtitle">Sobre Nosotros</h2>
+                    <h1>Nuestra Historia</h1>
+                </div>
+
+                <div class="about-grid">
+                    <div class="about-text">
+                        <p>En <span class="text-red">Food Divcode</span>, somos más que un restaurante de comida rápida. Desde nuestros inicios en 2015, nos hemos dedicado a revolucionar la experiencia de la comida rápida, combinando sabor auténtico con ingredientes frescos y de la más alta calidad.</p>
+                        <p>Cada hamburguesa, cada sandwich y cada plato que servimos está preparado con pasión y dedicación. Nuestro equipo de chefs expertos trabaja diariamente para crear recetas únicas que deleiten tu paladar y superen tus expectativas.</p>
+                        <p>Creemos que la comida rápida puede ser deliciosa, nutritiva y accesible. Por eso, seleccionamos cuidadosamente cada ingrediente, desde la carne 100% res hasta las verduras frescas del día, garantizando que cada bocado sea una experiencia inolvidable.</p>
+                    </div>
+                    <div class="about-image">
+                        <img src="https://images.unsplash.com/photo-1629407119384-d42320c3e576?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwa2l0Y2hlbiUyMGNoZWZ8ZW58MXx8fHwxNzYxODcwNzczfDA&ixlib=rb-4.1.0&q=80&w=1080" alt="Nuestro equipo">
+                    </div>
+                </div>
+
+                <div class="values-grid">
+                    <div class="value-card">
+                        <div class="value-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <path d="M16 10a4 4 0 0 1-8 0"></path>
+                            </svg>
+                        </div>
+                        <h3>Calidad Premium</h3>
+                        <p>Solo usamos ingredientes frescos y de la mejor calidad</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <h3>Servicio Rápido</h3>
+                        <p>Tu comida lista en minutos sin sacrificar sabor</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="8" r="7"></circle>
+                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                            </svg>
+                        </div>
+                        <h3>Recetas Únicas</h3>
+                        <p>Sabores originales que no encontrarás en otro lugar</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </div>
+                        <h3>Pasión por Servir</h3>
+                        <p>Cada cliente es parte de nuestra familia</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Menu Section -->
+        <section id="menu" class="menu-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-subtitle">Nuestro Menú</h2>
+                    <h1>Descubre Nuestros Sabores</h1>
+                    <p>Cada plato está preparado con ingredientes frescos y de la más alta calidad. Disfruta de la mejor comida rápida de la ciudad.</p>
+                </div>
+
+                <div id="productsGrid" class="products-grid">
+                    <!-- Products will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contacto" class="contact-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-subtitle">Contáctanos</h2>
+                    <h1>Estamos Aquí Para Ti</h1>
+                    <p>¿Tienes alguna pregunta o quieres hacer un pedido? No dudes en contactarnos</p>
+                </div>
+
+                <div class="contact-grid">
+                    <div class="contact-info">
+                        <div class="contact-card">
+                            <h3>Información de Contacto</h3>
+                            
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4>Teléfono</h4>
+                                    <a href="tel:+525512345678">+52 55 1234 5678</a>
+                                </div>
+                            </div>
+
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4>WhatsApp</h4>
+                                    <p>+52 55 1234 5678</p>
+                                </div>
+                            </div>
+
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                        <polyline points="22,6 12,13 2,6"></polyline>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4>Email</h4>
+                                    <a href="mailto:contacto@fooddivcode.com">contacto@fooddivcode.com</a>
+                                </div>
+                            </div>
+
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                        <circle cx="12" cy="10" r="3"></circle>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4>Ubicación</h4>
+                                    <p>Calle Principal #123<br>Ciudad, Estado<br>Código Postal 12345</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="contact-buttons">
+                            <button onclick="orderWhatsApp()" class="btn btn-whatsapp">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                                </svg>
+                                Pedir por WhatsApp
+                            </button>
+                            <button onclick="callNow()" class="btn btn-primary">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                </svg>
+                                Llamar Ahora
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="contact-form-container">
+                        <h3>Envíanos un Mensaje</h3>
+                        <form id="contactForm">
+                            <div class="form-group">
+                                <label for="contactName">Nombre</label>
+                                <input type="text" id="contactName" placeholder="Tu nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactEmail">Email</label>
+                                <input type="email" id="contactEmail" placeholder="tu@email.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactPhone">Teléfono</label>
+                                <input type="tel" id="contactPhone" placeholder="+52 55 1234 5678" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactMessage">Mensaje</label>
+                                <textarea id="contactMessage" placeholder="Escribe tu mensaje aquí..." rows="4" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="map-container">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3762.8603826494385!2d-99.16588368509285!3d19.432607986887677!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d1ff35f5bd1563%3A0x6c366f0e2de02ff7!2sZocalo!5e0!3m2!1sen!2smx!4v1635789012345!5m2!1sen!2smx" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" title="Ubicación Food Divcode"></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-section">
+                        <div class="logo-container">
+                            <div class="logo-circle"></div>
+                            <h3><span class="text-red">//</span> FOOD DIVCODE</h3>
+                        </div>
+                        <p>La mejor comida rápida de la ciudad. Ingredientes frescos y sabores auténticos que te encantarán.</p>
+                        <div class="social-icons">
+                            <button class="social-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                                </svg>
+                            </button>
+                            <button class="social-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                                </svg>
+                            </button>
+                            <button class="social-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="footer-section">
+                        <h4>Enlaces</h4>
+                        <ul>
+                            <li><a href="#inicio">Inicio</a></li>
+                            <li><a href="#nosotros">Nosotros</a></li>
+                            <li><a href="#menu">Menú</a></li>
+                            <li><a href="#contacto">Contacto</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-section">
+                        <h4>Horario</h4>
+                        <ul>
+                            <li><strong>Lunes - Viernes:</strong> 11:00 AM - 11:00 PM</li>
+                            <li><strong>Sábado:</strong> 12:00 PM - 12:00 AM</li>
+                            <li><strong>Domingo:</strong> 12:00 PM - 10:00 PM</li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-section">
+                        <h4>Ubicación</h4>
+                        <p>Calle Principal #123<br>Ciudad, Estado<br>Código Postal 12345</p>
+                        <button class="btn btn-outline btn-sm">Ver en Mapa</button>
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    <p>&copy; 2025 Food Divcode. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    Tu Pedido
+                </h2>
+                <button id="closeCart" class="close-btn">&times;</button>
+            </div>
+
+            <div id="cartItems" class="cart-items">
+                <!-- Cart items will be inserted here -->
+            </div>
+
+            <div id="cartFooter" class="cart-footer">
+                <!-- Cart footer will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Finalizar Pedido</h2>
+                <button class="close-btn" onclick="closeCheckout()">&times;</button>
+            </div>
+            <p class="modal-subtitle">Completa tus datos para recibir tu pedido</p>
+
+            <form id="checkoutForm">
+                <h3>Información de Contacto</h3>
+                <div class="form-group">
+                    <label for="customerName">Nombre completo</label>
+                    <input type="text" id="customerName" placeholder="Ej: Juan Pérez" required>
+                </div>
+                <div class="form-group">
+                    <label for="customerPhone">Teléfono</label>
+                    <input type="tel" id="customerPhone" placeholder="Ej: +52 55 1234 5678" required>
+                </div>
+
+                <h3>Dirección de Entrega</h3>
+                <div class="form-group">
+                    <label for="customerAddress">Dirección completa</label>
+                    <textarea id="customerAddress" placeholder="Calle, número, colonia, código postal..." rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="orderNotes">Notas adicionales (opcional)</label>
+                    <textarea id="orderNotes" placeholder="Referencias, instrucciones especiales, etc..." rows="2"></textarea>
+                </div>
+
+                <h3>Método de Pago</h3>
+                <div class="payment-options">
+                    <label class="payment-option">
+                        <input type="radio" name="paymentMethod" value="cash" checked>
+                        <div class="payment-content">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                            <div>
+                                <strong>Efectivo</strong>
+                                <p>Pago contra entrega</p>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="paymentMethod" value="card">
+                        <div class="payment-content">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                <line x1="1" y1="10" x2="23" y2="10"></line>
+                            </svg>
+                            <div>
+                                <strong>Tarjeta de crédito/débito</strong>
+                                <p>Terminal al momento de entrega</p>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="order-summary">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="checkoutSubtotal">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Envío</span>
+                        <span>$5.00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total a pagar</span>
+                        <span id="checkoutTotal" class="text-red">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" onclick="closeCheckout()" class="btn btn-outline">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Confirmar Pedido</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content modal-success">
+            <div class="success-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+
+            <h2>¡Pedido Confirmado!</h2>
+            <p>Tu pedido ha sido recibido y está siendo preparado</p>
+
+            <div class="order-number">
+                <p>Número de orden</p>
+                <h3 id="orderNumber">FD12345678</h3>
+            </div>
+
+            <div class="order-details">
+                <div class="detail-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    <div>
+                        <strong>Dirección de entrega</strong>
+                        <p id="confirmAddress">-</p>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    <div>
+                        <strong>Contacto</strong>
+                        <p id="confirmPhone">-</p>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <div>
+                        <strong>Tiempo estimado</strong>
+                        <p>30-45 minutos</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="confirmation-total">
+                <span>Total a pagar (<span id="confirmPaymentMethod">Efectivo</span>)</span>
+                <span id="confirmTotal" class="text-red">$0.00</span>
+            </div>
+
+            <p class="confirmation-note">Te contactaremos pronto para confirmar tu pedido</p>
+
+            <button onclick="closeConfirmation()" class="btn btn-primary">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
