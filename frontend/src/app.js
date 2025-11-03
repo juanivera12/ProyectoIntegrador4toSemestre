@@ -560,31 +560,62 @@ const publicKey = "APP_USR-d4625eba-109d-4ab5-88ed-3c7f1c723e40";
 const preferenceId = "2670517922-879aff76-aa32-4bd1-aa92-595bb947176b"; // Preference ID que funcionaba antes
 
 async function renderMercadoPagoButton() {
-    try {
-        const containerId = 'walletBrick_container';
-        const container = document.getElementById(containerId);
-        
-        if (!container) {
-            console.error('Contenedor de Mercado Pago no encontrado');
-            return;
-        }
-        
-        // Limpiar contenedor antes de renderizar
-        container.innerHTML = '';
+    const containerId = 'walletBrick_container';
+    const container = document.getElementById(containerId);
+    
+    if (!container) {
+        console.error('Contenedor de Mercado Pago no encontrado');
+        return;
+    }
+    
+    // 1. Limpiar y mostrar contenedor (para debug)
+    container.innerHTML = 'Cargando botón de pago...';
+    container.style.display = 'block'; // Asegurar que se vea mientras carga
 
-        // Inicializar SDK con tu public key y renderizar el Wallet Brick
+    try {
+        // PASO 1: Llama al backend para crear la preferencia dinámica
+        const res = await fetch(`${API_BASE}/create_preference`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            // ENVIAR EL CARRITO CON LAS PROPIEDADES CORRECTAS (name, quantity, price)
+            body: JSON.stringify({ items: cart.map(item => ({
+                name: item.name, 
+                quantity: item.quantity, 
+                price: item.price 
+            })) })
+        });
+
+        // Verificar si la respuesta fue exitosa a nivel HTTP (200-299)
+        if (!res.ok) {
+            const errorPayload = await res.json().catch(() => ({}));
+            console.error('Error del Servidor al crear preferencia:', res.status, errorPayload);
+            showToast(`Error ${res.status}: No se pudo crear la preferencia.`, 'error');
+            container.innerHTML = 'Error de conexión con MP.'; // Mostrar error en contenedor
+            return; // Detener la ejecución
+        }
+
+        const data = await res.json();
+        const dynamicPreferenceId = data.preference_id;
+
+        // PASO 2: Inicializar SDK y renderizar el Wallet Brick con el ID dinámico
+        
+        // Limpiar el mensaje de "cargando"
+        container.innerHTML = ''; 
+
         const mp = new MercadoPago(publicKey, { locale: 'es-MX' });
         const bricksBuilder = mp.bricks();
         
         await bricksBuilder.create('wallet', containerId, {
             initialization: {
-                preferenceId: preferenceId,
+                preferenceId: dynamicPreferenceId,
             },
         });
         
     } catch (error) {
-        console.error('Error al renderizar botón de Mercado Pago:', error);
-        showToast('Error al cargar el botón de Mercado Pago. Intenta de nuevo.', 'error');
+        // Captura errores de red (ej. servidor Node.js no corriendo) o errores de Brick
+        console.error('Error FATAL al renderizar botón de Mercado Pago:', error);
+        showToast('Error de red. Asegúrate de que tu servidor esté corriendo.', 'error');
+        container.innerHTML = 'Error de red o servidor no disponible.';
     }
 }
 

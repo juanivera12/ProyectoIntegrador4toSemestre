@@ -27,24 +27,54 @@ const { MercadoPagoConfig, Preference } = require('mercadopago');
 const client = new MercadoPagoConfig({ accessToken: 'APP_USR-5297062915426978-090319-d6089e8ecdab5289c86405e84054f715-2670517922' });
 
 app.post('/create_preference', async (req, res) => {
+    // server.js (dentro de app.post('/create_preference'))
+
+   // server.js (dentro de app.post('/create_preference'))
+
     try {
         const preference = new Preference(client);
         
-        // Obtener items del body de la petición
-        const { items } = req.body;
+        // CORRECCIÓN CLAVE: Inicializar items como un array vacío si no existe en req.body
+        const items = req.body.items || [];
         
-        if (!items || !Array.isArray(items) || items.length === 0) {
-            return res.status(400).json({ "error": "Items are required" });
+        // La validación ahora es más limpia:
+        if (!Array.isArray(items) || items.length === 0) {
+            console.error('Error: El carrito está vacío o la estructura de datos es incorrecta. Recibido:', req.body);
+            return res.status(400).json({ "error": "El carrito está vacío o la estructura de datos es incorrecta." });
         }
         
-        // Crear la preferencia con los items recibidos
+        console.log('Items recibidos del frontend:', items);
+
+        // El resto del código de mapeo es correcto y robusto (debería funcionar)
+        const itemsForPreference = items.map(item => {
+            // ... (resto de la lógica de validación de quantity y price)
+            let quantity = parseInt(item.quantity);
+            if (isNaN(quantity) || quantity < 1) {
+                quantity = 1; 
+            }
+            let price = parseFloat(item.price);
+            if (isNaN(price) || price <= 0) {
+                price = 0.01; 
+            }
+            return { 
+                title: item.name,              
+                quantity: quantity, 
+                unit_price: price 
+            };
+        });
+// ...
+
+        // **DEPURACIÓN: Mostrar los ítems finales**
+        console.log('Items FINAL a enviar a MP:', itemsForPreference); 
+
+        if (itemsForPreference.length === 0) {
+            return res.status(400).json({ "error": "No hay productos válidos para procesar." });
+        }
+        
+        // Crear la preferencia con los items validados
         const data = await preference.create({
             body: {
-                items: items.map(item => ({
-                    title: item.title,
-                    quantity: parseInt(item.quantity),
-                    unit_price: parseFloat(item.unit_price)
-                })),
+                items: itemsForPreference, // Usamos el array ya filtrado y mapeado
                 back_urls: {
                     success: `${req.protocol}://${req.get('host')}/success`,
                     failure: `${req.protocol}://${req.get('host')}/failure`,
@@ -62,10 +92,14 @@ app.post('/create_preference', async (req, res) => {
             preference_url: data.init_point || data.sandbox_init_point,
         });
     } catch (error) {
-        console.error('Error al crear preferencia:', error);
-        res.status(500).json({ "error": "error creating preference", "details": error.message });
+        // IMPRESIÓN COMPLETA DEL OBJETO DE ERROR DE MERCADO PAGO
+        console.error('Error detallado de MP:', error); 
+        console.error('Mensaje de error:', error.message);
+        // Usa error.cause[0].code para ver el código de error de la API (si está disponible)
+        res.status(500).json({ "error": "Error al contactar MP", "details": error.message });
     }
 });
+
 
 // Montar las Rutas de Usuarios en el prefijo /api/users
 app.use('/api/users', usersRoutes);
