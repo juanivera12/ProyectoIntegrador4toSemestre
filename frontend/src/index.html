@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHEF EN CLICK </title>
+    <title>CHEF EN CLICK - E-Commerce de Comida Rápida</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -51,7 +51,7 @@
                     <button type="submit" class="btn btn-primary">INICIAR SESIÓN</button>
                 </form>
                 <p class="login-footer">
-                    ¿No tienes cuenta? <a href="#" class="text-red">Regístrate</a>
+                    ¿No tienes cuenta? <a href="#" class="text-red" id="openRegister">Regístrate</a>
                 </p>
             </div>
         </div>
@@ -457,7 +457,23 @@
                             </div>
                         </div>
                     </label>
+                    <label class="payment-option">
+                        <input type="radio" name="paymentMethod" value="mercadopago">
+                        <div class="payment-content">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                <line x1="1" y1="10" x2="23" y2="10"></line>
+                            </svg>
+                            <div>
+                                <strong>Mercado Pago</strong>
+                                <p>Pago online seguro</p>
+                            </div>
+                        </div>
+                    </label>
                 </div>
+
+                <!-- Contenedor para el botón de Mercado Pago -->
+                <div id="walletBrick_container" style="display: none; margin-top: 15px; margin-bottom: 15px;"></div>
 
                 <div class="order-summary">
                     <div class="summary-row">
@@ -477,6 +493,36 @@
                 <div class="modal-buttons">
                     <button type="button" onclick="closeCheckout()" class="btn btn-outline">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Confirmar Pedido</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Crear Cuenta</h2>
+                <button class="close-btn" onclick="closeRegister()">&times;</button>
+            </div>
+            <p class="modal-subtitle">Regístrate para disfrutar de nuestro menú</p>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">Nombre</label>
+                    <input type="text" id="registerName" placeholder="Tu nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" placeholder="tu@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Contraseña</label>
+                    <input type="password" id="registerPassword" placeholder="••••••••" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" onclick="closeRegister()" class="btn btn-outline">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear Cuenta</button>
                 </div>
             </form>
         </div>
@@ -543,8 +589,9 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
+
     <div id="toast" class="toast"></div>
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
 
     <script src="app.js"></script>
 </body>

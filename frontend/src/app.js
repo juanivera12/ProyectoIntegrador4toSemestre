@@ -47,6 +47,7 @@ const products = [
 // State
 let cart = [];
 let isLoggedIn = false;
+const API_BASE = 'http://localhost:3000';
 
 // DOM Elements
 const loginScreen = document.getElementById('loginScreen');
@@ -69,11 +70,35 @@ const toast = document.getElementById('toast');
 function init() {
     renderProducts();
     setupEventListeners();
+    // Restore session if token exists
+    const existingToken = getAuthToken();
+    if (existingToken) {
+        isLoggedIn = true;
+        loginScreen.style.display = 'none';
+        mainApp.style.display = 'block';
+    }
 }
 
 // Event Listeners
 function setupEventListeners() {
     loginForm.addEventListener('submit', handleLogin);
+    // Register modal link
+    const registerLink = document.getElementById('openRegister');
+    if (registerLink) {
+        registerLink.addEventListener('click', (e) => { e.preventDefault(); openRegister(); });
+    }
+    // Close register by clicking outside
+    const registerModal = document.getElementById('registerModal');
+    if (registerModal) {
+        registerModal.addEventListener('click', (e) => {
+            if (e.target === registerModal) closeRegister();
+        });
+    }
+    // Register form submit
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', handleRegisterSubmit);
+    }
     cartBtn.addEventListener('click', openCart);
     closeCart.addEventListener('click', closeCartSidebar);
     checkoutForm.addEventListener('submit', handleCheckout);
@@ -114,17 +139,107 @@ function setupEventListeners() {
     });
 }
 
+// Auth helpers
+function getAuthToken() {
+    try {
+        return localStorage.getItem('authToken');
+    } catch (_) { return null; }
+}
+
+function setAuthToken(token) {
+    try {
+        localStorage.setItem('authToken', token);
+    } catch (_) {}
+}
+
+async function authFetch(path, options = {}) {
+    const token = getAuthToken();
+    const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`${API_BASE}${path}`, Object.assign({}, options, { headers }));
+    return res;
+}
+
 // Login
-function handleLogin(e) {
+async function handleLogin(e) {
     e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     
-    if (email && password) {
-        isLoggedIn = true;
-        loginScreen.style.display = 'none';
-        mainApp.style.display = 'block';
-        showToast('¡Bienvenido a Food Divcode!', 'success');
+    if (!email || !password) return;
+    try {
+        const res = await fetch(`${API_BASE}/api/users/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            showToast(err.error || 'Error de autenticación', 'error');
+            return;
+        }
+        const data = await res.json();
+        if (data && data.token) {
+            setAuthToken(data.token);
+            isLoggedIn = true;
+            loginScreen.style.display = 'none';
+            mainApp.style.display = 'block';
+            showToast('¡Bienvenido a Food Divcode!', 'success');
+        } else {
+            showToast('Respuesta inválida del servidor', 'error');
+        }
+    } catch (error) {
+        showToast('No se pudo conectar con el servidor', 'error');
+    }
+}
+
+// Register modal controls and submit
+function openRegister() {
+    const m = document.getElementById('registerModal');
+    if (m) m.classList.add('active');
+}
+
+function closeRegister() {
+    const m = document.getElementById('registerModal');
+    if (m) m.classList.remove('active');
+}
+
+async function handleRegisterSubmit(e) {
+    e.preventDefault();
+    const nombre = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    if (!nombre || !email || !password) return;
+    try {
+        const res = await fetch(`${API_BASE}/api/users/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, nombre })
+        });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            showToast(payload.error || 'No se pudo registrar', 'error');
+            return;
+        }
+        showToast('Registro exitoso, iniciando sesión...', 'success');
+        // Auto-login
+        const loginRes = await fetch(`${API_BASE}/api/users/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        if (loginRes.ok) {
+            const data = await loginRes.json();
+            if (data && data.token) {
+                setAuthToken(data.token);
+                isLoggedIn = true;
+                closeRegister();
+                loginScreen.style.display = 'none';
+                mainApp.style.display = 'block';
+            }
+        }
+    } catch (_) {
+        showToast('Error de red en registro', 'error');
     }
 }
 
@@ -282,7 +397,6 @@ function closeCartSidebar() {
     cartSidebar.classList.remove('active');
 }
 
-// Checkout
 function openCheckout() {
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const total = subtotal + 5;
@@ -290,22 +404,88 @@ function openCheckout() {
     document.getElementById('checkoutSubtotal').textContent = `$${subtotal.toFixed(2)}`;
     document.getElementById('checkoutTotal').textContent = `$${total.toFixed(2)}`;
     
+    // Ocultar botón de Mercado Pago inicialmente
+    const walletContainer = document.getElementById('walletBrick_container');
+    if (walletContainer) {
+        walletContainer.style.display = 'none';
+        walletContainer.innerHTML = '';
+    }
+    
+    // Asegurar que el botón "Confirmar Pedido" sea visible
+    const confirmButton = checkoutForm.querySelector('button[type="submit"]');
+    if (confirmButton) {
+        confirmButton.style.display = 'block';
+    }
+    
+    // Listener para detectar cambios en el método de pago
+    const paymentMethods = document.querySelectorAll('input[name="paymentMethod"]');
+    paymentMethods.forEach(radio => {
+        radio.addEventListener('change', handlePaymentMethodChange);
+    });
+    
     closeCartSidebar();
     checkoutModal.classList.add('active');
 }
 
+function handlePaymentMethodChange() {
+    const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    const walletContainer = document.getElementById('walletBrick_container');
+    const confirmButton = checkoutForm.querySelector('button[type="submit"]');
+    
+    if (selectedMethod === 'mercadopago') {
+        // Ocultar botón de confirmar pedido
+        if (confirmButton) {
+            confirmButton.style.display = 'none';
+        }
+        // Mostrar contenedor y renderizar botón de Mercado Pago
+        if (walletContainer) {
+            walletContainer.style.display = 'block';
+            renderMercadoPagoButton();
+        }
+    } else {
+        // Ocultar botón de Mercado Pago
+        if (walletContainer) {
+            walletContainer.style.display = 'none';
+            walletContainer.innerHTML = '';
+        }
+        // Mostrar botón de confirmar pedido
+        if (confirmButton) {
+            confirmButton.style.display = 'block';
+        }
+    }
+}
+
 function closeCheckout() {
+    // Limpiar botón de Mercado Pago al cerrar
+    const walletContainer = document.getElementById('walletBrick_container');
+    if (walletContainer) {
+        walletContainer.style.display = 'none';
+        walletContainer.innerHTML = '';
+    }
+    
+    // Asegurar que el botón "Confirmar Pedido" sea visible
+    const confirmButton = checkoutForm.querySelector('button[type="submit"]');
+    if (confirmButton) {
+        confirmButton.style.display = 'block';
+    }
+    
     checkoutModal.classList.remove('active');
 }
 
 function handleCheckout(e) {
     e.preventDefault();
     
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    
+    // Si el método de pago es Mercado Pago, no procesar aquí (el botón de Mercado Pago lo hará)
+    if (paymentMethod === 'mercadopago') {
+        return;
+    }
+    
     const customerName = document.getElementById('customerName').value;
     const customerPhone = document.getElementById('customerPhone').value;
     const customerAddress = document.getElementById('customerAddress').value;
     const orderNotes = document.getElementById('orderNotes').value;
-    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
     
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const total = subtotal + 5;
@@ -317,7 +497,13 @@ function handleCheckout(e) {
     document.getElementById('orderNumber').textContent = orderNumber;
     document.getElementById('confirmAddress').textContent = customerAddress;
     document.getElementById('confirmPhone').textContent = customerPhone;
-    document.getElementById('confirmPaymentMethod').textContent = paymentMethod === 'cash' ? 'Efectivo' : 'Tarjeta';
+    
+    let paymentMethodText = 'Efectivo';
+    if (paymentMethod === 'card') {
+        paymentMethodText = 'Tarjeta';
+    }
+    
+    document.getElementById('confirmPaymentMethod').textContent = paymentMethodText;
     document.getElementById('confirmTotal').textContent = `$${total.toFixed(2)}`;
     
     // Close checkout and open confirmation
@@ -367,6 +553,39 @@ function showToast(message, type = 'success') {
     setTimeout(() => {
         toast.classList.remove('show');
     }, 3000);
+}
+
+// Mercado Pago Functions
+const publicKey = "APP_USR-d4625eba-109d-4ab5-88ed-3c7f1c723e40";
+const preferenceId = "2670517922-879aff76-aa32-4bd1-aa92-595bb947176b"; // Preference ID que funcionaba antes
+
+async function renderMercadoPagoButton() {
+    try {
+        const containerId = 'walletBrick_container';
+        const container = document.getElementById(containerId);
+        
+        if (!container) {
+            console.error('Contenedor de Mercado Pago no encontrado');
+            return;
+        }
+        
+        // Limpiar contenedor antes de renderizar
+        container.innerHTML = '';
+
+        // Inicializar SDK con tu public key y renderizar el Wallet Brick
+        const mp = new MercadoPago(publicKey, { locale: 'es-MX' });
+        const bricksBuilder = mp.bricks();
+        
+        await bricksBuilder.create('wallet', containerId, {
+            initialization: {
+                preferenceId: preferenceId,
+            },
+        });
+        
+    } catch (error) {
+        console.error('Error al renderizar botón de Mercado Pago:', error);
+        showToast('Error al cargar el botón de Mercado Pago. Intenta de nuevo.', 'error');
+    }
 }
 
 // Initialize app when DOM is loaded
