@@ -15,15 +15,15 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- Schema mydb
 -- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
-USE `mydb` ;
+USE `db_proyecto_final` ;
 
 -- -----------------------------------------------------
 -- Table `mydb`.`Pedidos`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Pedidos` ;
+DROP TABLE IF EXISTS `db_proyecto_final`.`Pedidos` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Pedidos` (
-  `id_pedido` INT NULL,
+CREATE TABLE IF NOT EXISTS `db_proyecto_final`.`Pedidos` (
+  `id_pedido`  INT NOT NULL,
   `id_usuario` INT NULL,
   `fecha_hora` DATETIME NULL,
   `total` DECIMAL(10,2) NULL,
@@ -36,10 +36,10 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`detalle_pedido`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`detalle_pedido` ;
+DROP TABLE IF EXISTS `db_proyecto_final`.`detalle_pedido` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`detalle_pedido` (
-  `id_detalle` INT NULL,
+CREATE TABLE IF NOT EXISTS `db_proyecto_final`.`detalle_pedido` (
+  `id_detalle` INT NOT NULL,
   `id_pedido` INT NULL,
   `id_producto` INT NULL,
   `precio_unitario` DECIMAL(10,2) NULL,
@@ -50,10 +50,10 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`user`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`user` ;
+DROP TABLE IF EXISTS `db_proyecto_final`.`user` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`user` (
-  `id_user` INT NULL,
+CREATE TABLE IF NOT EXISTS `db_proyecto_final`.`user` (
+  `id_user` INT NOT NULL,
   `email` VARCHAR(255) NULL,
   `password_hash` VARCHAR(32) NULL,
   `nombre` VARCHAR(45) NULL,
@@ -65,10 +65,10 @@ CREATE TABLE IF NOT EXISTS `mydb`.`user` (
 -- -----------------------------------------------------
 -- Table `mydb`.`Productos`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Productos` ;
+DROP TABLE IF EXISTS `db_proyecto_final`.`Productos` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Productos` (
-  `id_producto` INT NULL,
+CREATE TABLE IF NOT EXISTS `db_proyecto_final`.`Productos` (
+  `id_producto` INT NOT NULL,
   `name` VARCHAR(45) NULL,
   `descripcion` TEXT NULL,
   `precio` DECIMAL(10,2) NULL,

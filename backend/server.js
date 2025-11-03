@@ -1,7 +1,7 @@
 // backend/server.js
-const express = require('express');
-const bodyParser = require('body-parser'); 
-const usersRoutes = require('./routes/users'); // Importa las nuevas rutas
+import express from 'express';
+import bodyParser from 'body-parser';
+import usersRoutes from './routes/users.js';// Importa las nuevas rutas
 
 const app = express();
 const PORT = 3000;
