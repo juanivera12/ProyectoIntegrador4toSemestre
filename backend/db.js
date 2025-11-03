@@ -5,8 +5,8 @@ const pool = mysql.createPool({
     //CONFIGURAR CON TUS DATOS JUANI
     host: 'localhost',      
     user: 'root',           
-    password: 'tu_password',
-    database: 'mydb',       
+    password: 'admin',
+    database: 'db_proyecto_final',       
     
     
     waitForConnections: true,
