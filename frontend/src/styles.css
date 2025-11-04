@@ -122,6 +122,8 @@ p {
     color: #fff;
     border: 2px solid #dc2626;
     padding: 0.75rem;
+    left: 80px;
+    top: 7px;
 }
 
 .btn-cart:hover {
@@ -315,8 +317,21 @@ p {
 .header-right {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 2rem;
+    margin-left: auto;
 }
+
+.btn-logout {
+    position: fixed; 
+    top: 1.5rem; 
+    right: 3rem; 
+    z-index: 1000;
+}
+
+.btn-logout svg {
+    flex-shrink: 0;
+}
+
 
 .nav-desktop {
     display: none;
@@ -593,7 +608,7 @@ section {
     }
 }
 
-/* Contact Section */
+
 .contact-section {
     background-color: #000;
 }
@@ -703,7 +718,6 @@ section {
     }
 }
 
-/* Footer */
 .footer {
     background-color: #000;
     border-top: 1px solid #27272a;
@@ -770,7 +784,7 @@ section {
     }
 }
 
-/* Cart Sidebar */
+
 .cart-sidebar {
     position: fixed;
     top: 0;
@@ -969,7 +983,7 @@ section {
     color: #fff;
 }
 
-/* Modal */
+
 .modal {
     display: none;
     position: fixed;

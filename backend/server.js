@@ -54,11 +54,9 @@ app.post("/create_preference", async (req, res) => {
         `DEBUG: Item bruto recibido: {name: ${item.name}, price: ${item.price}, quantity: ${item.quantity}}`
       );
 
-      // Asigna 0.01 si item.price es null, undefined, 0, o NaN.
       const price =
         parseFloat(item.price || 0) <= 0 ? 0.01 : parseFloat(item.price);
 
-      // Asigna 1 si item.quantity es null, undefined, 0, o NaN.
       const quantity =
         parseInt(item.quantity || 1) <= 0 ? 1 : parseInt(item.quantity);
 
@@ -66,18 +64,14 @@ app.post("/create_preference", async (req, res) => {
         title: item.name,
         quantity: quantity,
         unit_price: price,
+        
       };
     });
 
-    // ... (El resto del código de Mercado Pago)
-
-    // **DEPURACIÓN: Muestra los ítems finales (¡revisa esto en tu terminal!)**
     console.log(
       "Items FINALES a enviar a MP (deben tener precio > 0):",
       itemsForPreference
     );
-
-    // **DEPURACIÓN: Mostrar los ítems finales**
     console.log("Items FINAL a enviar a MP:", itemsForPreference);
 
     if (itemsForPreference.length === 0) {
@@ -108,10 +102,10 @@ app.post("/create_preference", async (req, res) => {
       preference_url: data.init_point || data.sandbox_init_point,
     });
   } catch (error) {
-    // IMPRESIÓN COMPLETA DEL OBJETO DE ERROR DE MERCADO PAGO
+    
     console.error("Error detallado de MP:", error);
     console.error("Mensaje de error:", error.message);
-    // Usa error.cause[0].code para ver el código de error de la API (si está disponible)
+    
     res
       .status(500)
       .json({ error: "Error al contactar MP", details: error.message });
