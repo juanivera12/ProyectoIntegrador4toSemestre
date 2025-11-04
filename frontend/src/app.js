@@ -557,52 +557,56 @@ function showToast(message, type = 'success') {
 
 // Mercado Pago Functions
 const publicKey = "APP_USR-d4625eba-109d-4ab5-88ed-3c7f1c723e40";
-const preferenceId = "2670517922-879aff76-aa32-4bd1-aa92-595bb947176b"; // Preference ID que funcionaba antes
+//const preferenceId = "2670517922-879aff76-aa32-4bd1-aa92-595bb947176b"; // Preference ID que funcionaba antes
+
+// app.js (Reemplazar la función actual)
 
 async function renderMercadoPagoButton() {
-    const containerId = 'walletBrick_container';
-    const container = document.getElementById(containerId);
-    
-    if (!container) {
-        console.error('Contenedor de Mercado Pago no encontrado');
-        return;
-    }
-    
-    // 1. Limpiar y mostrar contenedor (para debug)
-    container.innerHTML = 'Cargando botón de pago...';
-    container.style.display = 'block'; // Asegurar que se vea mientras carga
-
     try {
-        // PASO 1: Llama al backend para crear la preferencia dinámica
-        const res = await fetch(`${API_BASE}/create_preference`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            // ENVIAR EL CARRITO CON LAS PROPIEDADES CORRECTAS (name, quantity, price)
-            body: JSON.stringify({ items: cart.map(item => ({
-                name: item.name, 
-                quantity: item.quantity, 
-                price: item.price 
-            })) })
-        });
+        const containerId = 'walletBrick_container';
+        const container = document.getElementById(containerId);
+        
+        if (!container) {
+            console.error('Contenedor de Mercado Pago no encontrado');
+            return;
+        }
+        
+        container.innerHTML = 'Cargando botón de pago...'; // Mensaje de carga
 
-        // Verificar si la respuesta fue exitosa a nivel HTTP (200-299)
-        if (!res.ok) {
-            const errorPayload = await res.json().catch(() => ({}));
-            console.error('Error del Servidor al crear preferencia:', res.status, errorPayload);
-            showToast(`Error ${res.status}: No se pudo crear la preferencia.`, 'error');
-            container.innerHTML = 'Error de conexión con MP.'; // Mostrar error en contenedor
-            return; // Detener la ejecución
+        // *** PASO 1: OBTENER EL ID DE PREFERENCIA DEL BACKEND ***
+        const cartItems = getCartItems(); // Obtener el carrito con cantidades
+        
+        if (cartItems.length === 0) {
+            showToast('El carrito está vacío.', 'warning');
+            container.innerHTML = 'Añade productos para pagar.';
+            return;
         }
 
-        const data = await res.json();
+        const fetchRes = await fetch('http://localhost:3000/create_preference', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ items: cartItems }), // <-- Aquí se envía el array 'items'
+        });
+
+        // Manejar errores de respuesta del servidor (Error 400, 500, etc.)
+        if (!fetchRes.ok) {
+            const errorPayload = await fetchRes.json().catch(() => ({}));
+            console.error('Error del Servidor al crear preferencia:', fetchRes.status, errorPayload);
+            showToast(`Error ${fetchRes.status}: ${errorPayload.error || 'No se pudo crear la preferencia.'}`, 'error');
+            container.innerHTML = 'Error de conexión con MP.';
+            return; 
+        }
+
+        const data = await fetchRes.json();
         const dynamicPreferenceId = data.preference_id;
 
-        // PASO 2: Inicializar SDK y renderizar el Wallet Brick con el ID dinámico
+        // *** PASO 2: Inicializar SDK y renderizar el Wallet Brick con el ID dinámico ***
         
-        // Limpiar el mensaje de "cargando"
-        container.innerHTML = ''; 
+        container.innerHTML = ''; // Limpiar el mensaje de "cargando"
 
-        const mp = new MercadoPago(publicKey, { locale: 'es-MX' });
+        const mp = new MercadoPago(publicKey, { locale: 'es-AR' });
         const bricksBuilder = mp.bricks();
         
         await bricksBuilder.create('wallet', containerId, {
@@ -612,11 +616,23 @@ async function renderMercadoPagoButton() {
         });
         
     } catch (error) {
-        // Captura errores de red (ej. servidor Node.js no corriendo) o errores de Brick
         console.error('Error FATAL al renderizar botón de Mercado Pago:', error);
         showToast('Error de red. Asegúrate de que tu servidor esté corriendo.', 'error');
         container.innerHTML = 'Error de red o servidor no disponible.';
     }
+}
+// app.js (Función getCartItems)
+
+function getCartItems() {
+    // Solo usamos los productos realmente agregados al carrito
+    return cart.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: parseFloat(item.price).toFixed(2),
+        quantity: parseInt(item.quantity)
+    }));
+
+
 }
 
 // Initialize app when DOM is loaded
