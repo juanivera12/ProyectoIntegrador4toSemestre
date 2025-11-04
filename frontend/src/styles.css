@@ -1,4 +1,4 @@
-/* Reset and Base Styles */
+
 * {
     margin: 0;
     padding: 0;
@@ -17,14 +17,14 @@ body {
     background-color: #000;
 }
 
-/* Container */
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 1rem;
 }
 
-/* Typography */
+
 h1 {
     font-size: 2rem;
     font-weight: 500;
@@ -55,12 +55,12 @@ p {
     line-height: 1.5;
 }
 
-/* Utility Classes */
+
 .text-red {
     color: #dc2626;
 }
 
-/* Buttons */
+
 .btn {
     display: inline-flex;
     align-items: center;
@@ -76,12 +76,14 @@ p {
     cursor: pointer;
     transition: all 0.3s;
     text-decoration: none;
+    text-align: center;
 }
 
 .btn-primary {
     background-color: #dc2626;
     color: #fff;
     border: 2px solid #dc2626;
+    
 }
 
 .btn-primary:hover {
@@ -361,7 +363,7 @@ p {
     }
 }
 
-/* Hero Section */
+
 .hero-section {
     position: relative;
     padding: 5rem 0;
@@ -393,7 +395,6 @@ p {
     flex-wrap: wrap;
 }
 
-/* Section Styles */
 section {
     padding: 5rem 0;
 }
@@ -423,7 +424,7 @@ section {
     margin: 0 auto;
 }
 
-/* About Section */
+
 .about-section {
     background-color: #09090b;
 }
@@ -515,7 +516,7 @@ section {
     }
 }
 
-/* Menu Section */
+
 .menu-section {
     background-color: #000;
 }
@@ -1106,7 +1107,7 @@ section {
     flex: 1;
 }
 
-/* Order Confirmation */
+
 .success-icon {
     width: 5rem;
     height: 5rem;
@@ -1217,7 +1218,7 @@ section {
     width: 100%;
 }
 
-/* Toast Notification */
+
 .toast {
     position: fixed;
     bottom: 2rem;
