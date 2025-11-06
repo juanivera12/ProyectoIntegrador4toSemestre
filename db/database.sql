@@ -25,13 +25,14 @@ CREATE TABLE IF NOT EXISTS `db_proyecto_final`.`Productos` (
   `precio` DECIMAL(10,2) NOT NULL, 
   `imagen_url` VARCHAR(255) NULL,
   PRIMARY KEY (`id_producto`));
+ 
 -- 4. TABLA PEDIDOS
 -- Contiene la información general de la orden (quién, cuándo, cuánto).
 DROP TABLE IF EXISTS `db_proyecto_final`.`Pedidos` ;
 
 CREATE TABLE IF NOT EXISTS `db_proyecto_final`.`Pedidos` (
   `id_pedido` INT NOT NULL AUTO_INCREMENT,
-  `id_usuario` INT NOT NULL, -- Columna que será FK
+  `id_user` INT NOT NULL, -- Columna que será FK
   `fecha_hora` DATETIME NOT NULL,
   `total` DECIMAL(10,2) NOT NULL, 
   `estado` VARCHAR(45) NOT NULL, 
@@ -39,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `db_proyecto_final`.`Pedidos` (
   PRIMARY KEY (`id_pedido`),
   -- DEFINICIÓN DE CLAVE FORÁNEA: Conecta Pedidos con el Usuario
   CONSTRAINT `fk_Pedidos_user`
-    FOREIGN KEY (`id_usuario`)
+    FOREIGN KEY (`id_user`)
     REFERENCES `db_proyecto_final`.`user` (`id_user`));
 -- 5. TABLA DETALLE_PEDIDO
 -- Contiene qué productos y cuántos se compraron en cada pedido.
@@ -49,7 +50,6 @@ CREATE TABLE IF NOT EXISTS `db_proyecto_final`.`detalle_pedido` (
   `id_detalle` INT NOT NULL AUTO_INCREMENT,
   `id_pedido` INT NOT NULL, -- Columna que  FK (al pedido)
   `id_producto` INT NOT NULL, -- Columna que  FK (al producto del menú)
-  `cantidad` INT NOT NULL, -- La cantidad de ítems
   `precio_unitario` DECIMAL(10,2) NOT NULL, -- Precio al momento de la compra
   PRIMARY KEY (`id_detalle`),
 

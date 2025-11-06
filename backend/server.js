@@ -2,6 +2,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const usersRoutes = require("./routes/users"); // Importa las nuevas rutas
+const db = require("./db") 
 
 const app = express();
 const PORT = 3000;
@@ -123,4 +124,72 @@ app.get("/", (req, res) => {
 // Iniciar el Servidor
 app.listen(PORT, () => {
   console.log(`Servidor Express corriendo en http://localhost:${PORT}`);
+});
+
+app.post("/save_order", async (req, res) => {
+  const id_user = 1;
+  const { cartItems, total, paymentMethod, address, phone, notes } = req.body;
+  if (!cartItems || cartItems.length === 0) {
+    return res.status(400).json({ error: "El carrito está vacío." });
+  }
+
+  let connection;
+  try {
+    connection = await db.getConnection(); // Obtener una conexión del pool
+    await connection.beginTransaction();
+    // 1. Insertar el pedido en la tabla Pedidos
+    const insertPedidoQuery = `
+      INSERT INTO Pedidos 
+        (id_user, fecha_hora, total, estado) 
+      VALUES (?, NOW(), ?, ?)
+    `;
+    const [result] = await connection.execute(insertPedidoQuery, [
+      id_user, 
+      total, 
+      "Pendiente" // Estado inicial
+    ]);
+
+    const id_pedido = result.insertId; // Obtener el ID del pedido recién insertado
+    console.log(`Pedido insertado con ID: ${id_pedido}`);
+
+    // 2. Insertar los detalles del pedido en detalle_pedido
+    const detailPromises = cartItems.map(item => {
+      const priceAsNumber = parseFloat(item.price);
+      const insertDetalleQuery = `
+        INSERT INTO detalle_pedido 
+          (id_pedido, id_producto, precio_unitario, cantidad) 
+        VALUES (?, ?, ?, ?)
+      `;
+      return connection.execute(insertDetalleQuery, [
+        id_pedido,
+        item.id,          // id_producto
+        item.quantity,    // cantidad  
+        priceAsNumber     // precio_unitario (El precio al momento de la compra)
+      ]);
+    });
+
+    await Promise.all(detailPromises); // Ejecutar todas las inserciones de detalle
+    
+    await connection.commit(); // Confirmar la transacción (guardar todo)
+
+    res.status(201).json({ 
+        message: "Pedido guardado exitosamente", 
+        id_pedido,
+        orderNumber: `FD${id_pedido}`
+    });
+
+  } catch (error) {
+    if (connection) {
+      await connection.rollback(); // Deshacer si hubo un error
+    }
+    console.error("Error al guardar el pedido:", error);
+    res.status(500).json({ error: "Error interno al procesar el pedido." });
+  } finally {
+    if (connection) {
+      connection.release(); // Liberar la conexión al pool
+    }
+  }
+});
+
+app.get("/", (req, res) => {
 });

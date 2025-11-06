@@ -55,12 +55,12 @@ const products = [
   },
 ];
 
-// State
+
 let cart = [];
 let isLoggedIn = false;
 const API_BASE = "http://localhost:3000";
 
-// DOM Elements
+
 const loginScreen = document.getElementById("loginScreen");
 const mainApp = document.getElementById("mainApp");
 const loginForm = document.getElementById("loginForm");
@@ -71,7 +71,7 @@ const cartSidebar = document.getElementById("cartSidebar");
 const closeCart = document.getElementById("closeCart");
 const cartItems = document.getElementById("cartItems");
 const cartFooter = document.getElementById("cartFooter");
-const checkoutModal = document.getElementById("checkoutModal");
+const checkoutModal = document.getElementById("checkoutModal"); 
 const checkoutForm = document.getElementById("checkoutForm");
 const confirmationModal = document.getElementById("confirmationModal");
 const contactForm = document.getElementById("contactForm");
@@ -540,14 +540,13 @@ function closeCheckout() {
   checkoutModal.classList.remove("active");
 }
 
-function handleCheckout(e) {
+async function handleCheckout(e) {
   e.preventDefault();
 
   const paymentMethod = document.querySelector(
     'input[name="paymentMethod"]:checked'
   ).value;
 
-  // Si el método de pago es Mercado Pago, no procesar aquí (el botón de Mercado Pago lo hará)
   if (paymentMethod === "mercadopago") {
     return;
   }
@@ -563,25 +562,59 @@ function handleCheckout(e) {
   );
   const total = subtotal + 5;
 
-  const orderNumber = `FD${Date.now().toString().slice(-8)}`;
+  // --- Preparación de datos para el Backend ---
+  const orderData = {
+    cartItems: getCartItems(), // Usa la función existente
+    total: total,
+    paymentMethod: paymentMethod,
+    name: customerName,
+    address: customerAddress,
+    phone: customerPhone,
+    notes: orderNotes
+  };
+  try {
+    // LLAMADA AL BACKEND PARA GUARDAR EL PEDIDO
+    const res = await fetch(`${API_BASE}/save_order`, {
+      method: 'POST',
+      headers: { 
+          'Content-Type': 'application/json',
+          // Aquí deberías pasar el token de autorización si fuera necesario
+      },
+      body: JSON.stringify(orderData),
+    });
 
-  document.getElementById("orderNumber").textContent = orderNumber;
-  document.getElementById("confirmAddress").textContent = customerAddress;
-  document.getElementById("confirmPhone").textContent = customerPhone;
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      showToast(errorData.error || "Error al guardar el pedido en la DB.", "error");
+      return;
+    }
 
-  let paymentMethodText = "Efectivo";
-  if (paymentMethod === "card") {
-    paymentMethodText = "Tarjeta";
+    const data = await res.json();
+    const orderNumber = data.orderNumber; // Usar el orderNumber generado en el backend (FD + ID)
+
+    // --- Mostrar Confirmación (Lógica existente) ---
+    document.getElementById("orderNumber").textContent = orderNumber;
+    document.getElementById("confirmAddress").textContent = customerAddress;
+    document.getElementById("confirmPhone").textContent = customerPhone;
+
+    let paymentMethodText = "Efectivo";
+    if (paymentMethod === "card") {
+      paymentMethodText = "Tarjeta (Manual)";
+    }
+
+    document.getElementById("confirmPaymentMethod").textContent =
+      paymentMethodText;
+    document.getElementById("confirmTotal").textContent = `$${total.toFixed(2)}`;
+
+    closeCheckout();
+    confirmationModal.classList.add("active");
+
+    checkoutForm.reset();
+
+  } catch (error) {
+      console.error("Error de red al guardar el pedido:", error);
+      showToast("Error de conexión con el servidor.", "error");
   }
-
-  document.getElementById("confirmPaymentMethod").textContent =
-    paymentMethodText;
-  document.getElementById("confirmTotal").textContent = `$${total.toFixed(2)}`;
-
-  closeCheckout();
-  confirmationModal.classList.add("active");
-
-  checkoutForm.reset();
 }
 
 function closeConfirmation() {
