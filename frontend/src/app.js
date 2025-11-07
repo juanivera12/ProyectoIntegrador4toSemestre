@@ -77,6 +77,8 @@ const confirmationModal = document.getElementById("confirmationModal");
 const contactForm = document.getElementById("contactForm");
 const toast = document.getElementById("toast");
 const logoutBtn = document.getElementById("logoutBtn");
+const mpTransactionId = null; 
+const paymentMethod = 'efectivo';
 
 function init() {
   renderProducts();
@@ -549,8 +551,9 @@ async function handleCheckout(e) {
 
   if (paymentMethod === "mercadopago") {
     return;
-  }
+  }  else if (paymentMethod === 'efectivo'){
 
+  } 
   const customerName = document.getElementById("customerName").value;
   const customerPhone = document.getElementById("customerPhone").value;
   const customerAddress = document.getElementById("customerAddress").value;
@@ -560,17 +563,17 @@ async function handleCheckout(e) {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const total = subtotal + 5;
+  const total = subtotal + 0;
 
   // --- Preparación de datos para el Backend ---
   const orderData = {
     cartItems: getCartItems(), // Usa la función existente
-    total: total,
+    totalPedido: total,
     paymentMethod: paymentMethod,
     name: customerName,
     address: customerAddress,
     phone: customerPhone,
-    notes: orderNotes
+    mpTransactionId: null,
   };
   try {
     // LLAMADA AL BACKEND PARA GUARDAR EL PEDIDO
@@ -596,7 +599,7 @@ async function handleCheckout(e) {
     document.getElementById("orderNumber").textContent = orderNumber;
     document.getElementById("confirmAddress").textContent = customerAddress;
     document.getElementById("confirmPhone").textContent = customerPhone;
-
+     
     let paymentMethodText = "Efectivo";
     if (paymentMethod === "card") {
       paymentMethodText = "Tarjeta (Manual)";

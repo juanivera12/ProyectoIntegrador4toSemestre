@@ -128,32 +128,45 @@ app.listen(PORT, () => {
 
 app.post("/save_order", async (req, res) => {
   const id_user = 1;
-  const { cartItems, total, paymentMethod, address, phone, notes } = req.body;
+  const { cartItems, totalPedido: total = 0 , paymentMethod = 'efectivo', mpTransactionId = null,name = "",address = " ",phone =" " } = req.body;
   if (!cartItems || cartItems.length === 0) {
     return res.status(400).json({ error: "El carrito está vacío." });
   }
-
+  if (paymentMethod === "efectivo") {
+      const orderNumber = `EF-${Date.now()}`;
+        return res.status(201).json({ 
+          message: "Pedido de efectivo procesado inmediatamente.", 
+          id_pedido: 0, // 0 o null si no se inserta
+          orderNumber: orderNumber 
+      });
+    }
   let connection;
   try {
-    connection = await db.getConnection(); // Obtener una conexión del pool
+    connection = await db.getConnection(); // Obtener una conexión del poolD
     await connection.beginTransaction();
+
+    let orderStatus = "Pendiente";
+
+
     // 1. Insertar el pedido en la tabla Pedidos
     const insertPedidoQuery = `
       INSERT INTO Pedidos 
-        (id_user, fecha_hora, total, estado) 
-      VALUES (?, NOW(), ?, ?)
+        (id_user, total, estado, id_transaccion_mp) 
+      VALUES (?, ?,  ?, ?)
     `;
     const [result] = await connection.execute(insertPedidoQuery, [
       id_user, 
-      total, 
-      "Pendiente" // Estado inicial
+      total,
+      orderStatus, 
+      mpTransactionId
     ]);
 
     const id_pedido = result.insertId; // Obtener el ID del pedido recién insertado
     console.log(`Pedido insertado con ID: ${id_pedido}`);
 
     // 2. Insertar los detalles del pedido en detalle_pedido
-    const detailPromises = cartItems.map(item => {
+    const detailPromises = cartItems.filter(item => item && item.id).map(item => {
+      const quantity = parseInt(item.quantity) || 1;
       const priceAsNumber = parseFloat(item.price);
       const insertDetalleQuery = `
         INSERT INTO detalle_pedido 
@@ -162,9 +175,10 @@ app.post("/save_order", async (req, res) => {
       `;
       return connection.execute(insertDetalleQuery, [
         id_pedido,
-        item.id,          // id_producto
-        item.quantity,    // cantidad  
-        priceAsNumber     // precio_unitario (El precio al momento de la compra)
+        item.id,        // id_producto
+        priceAsNumber,          // precio_unitario  
+        quantity,   // cantidad  
+            
       ]);
     });
 
