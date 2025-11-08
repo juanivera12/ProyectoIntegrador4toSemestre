@@ -86,6 +86,7 @@ function init() {
 
   const existingToken = getAuthToken();
   if (existingToken) {
+    
     isLoggedIn = true;
     loginScreen.style.display = "none";
     mainApp.style.display = "block";
@@ -226,6 +227,7 @@ async function handleLogin(e) {
     const data = await res.json();
     if (data && data.token) {
       setAuthToken(data.token);
+      console.log(data.token)
       isLoggedIn = true;
       loginScreen.style.display = "none";
       mainApp.style.display = "block";
@@ -682,13 +684,19 @@ async function renderMercadoPagoButton() {
       container.innerHTML = "Añade productos para pagar.";
       return;
     }
+    const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+  const total = subtotal + 0;
+  console.log(subtotal)
 
     const fetchRes = await fetch("http://localhost:3000/create_preference", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ items: cartItems }), // <-- Aquí se envía el array 'items'
+      body: JSON.stringify({ items: cartItems, total, }), // <-- Aquí se envía el array 'items'
     });
 
     // Manejar errores de respuesta del servidor (Error 400, 500, etc.)

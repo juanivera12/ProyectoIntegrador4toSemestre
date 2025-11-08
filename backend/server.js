@@ -34,58 +34,84 @@ const client = new MercadoPagoConfig({
 });
 
 app.post("/create_preference", async (req, res) => {
+  const id_user = 1;
+  
+  const { 
+        items: cartItems , 
+        total: total,
+        paymentMethod = 'mercadopago', // Aseguramos que sea 'mercadopago' para este endpoint
+        // Otros datos que necesites...
+      } = req.body;
+      console.log(req.body) 
+    if (!cartItems || cartItems.length === 0) {
+        return res.status(400).json({ error: "El carrito está vacío." });
+    }
+    let connection;
+    let orderStatus = "Pagado con mercado pago"; 
+    let id_pedido_db = null;
+
+
+        connection = await db.getConnection(); 
+        await connection.beginTransaction();
+
+        // 1. --- Insertar el pedido en la tabla Pedidos (Estado Pendiente) ---
+
+        const insertPedidoQuery = `
+            INSERT INTO Pedidos 
+                (id_user, fecha_hora, total, estado, id_transaccion_mp) 
+            VALUES (?, NOW(), ?, ?, ?)
+        `;
+        
+        // Usamos null para id_transaccion_mp, ya que el ID de Mercado Pago se asigna después.
+        const [result] = await connection.execute(insertPedidoQuery, [
+            id_user, 
+            total,
+            orderStatus, 
+            null // id_transaccion_mp es NULL inicialmente
+        ]);
+
+        id_pedido_db = result.insertId; // Obtener el ID del pedido recién insertado
+        console.log(`Pedido ${id_pedido_db} insertado con estado: ${orderStatus}`);
+
+        // 2. --- Insertar los detalles del pedido en detalle_pedido ---
+        const detailPromises = cartItems.filter(item => item && item.id).map(item => {
+            const quantity = parseInt(item.quantity) || 1;
+            const priceAsNumber = parseFloat(item.price) || 0; 
+            
+            const insertDetalleQuery = `
+                INSERT INTO detalle_pedido 
+                    (id_pedido, id_producto, precio_unitario, cantidad) 
+                VALUES (?, ?, ?, ?)
+            `;
+            return connection.execute(insertDetalleQuery, [
+                id_pedido_db,
+                item.id,
+                priceAsNumber.toFixed(2), // Formato para la DB
+                quantity,
+            ]);
+        });
+
+        await Promise.all(detailPromises);
+
   try {
     const preference = new Preference(client);
 
-    const items = req.body.items || [];
+    const itemsForPreference = cartItems.map((item) => {
+            const price = parseFloat(item.price || 0) <= 0 ? 0.01 : parseFloat(item.price);
+            const quantity = parseInt(item.quantity || 1) <= 0 ? 1 : parseInt(item.quantity);
 
-    // Validar que items sea un array y no esté vacío
-    if (!Array.isArray(items) || items.length === 0) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "El carrito está vacío o la estructura de datos es incorrecta.",
+            return {
+                title: item.name || `Producto ID ${item.id}`,
+                quantity: quantity,
+                unit_price: price,
+            };
         });
-    }
-
-    const itemsForPreference = items.map((item) => {
-      // AGREGAR ESTO: Muestra el valor bruto antes de la validación
-      console.log(
-        `DEBUG: Item bruto recibido: {name: ${item.name}, price: ${item.price}, quantity: ${item.quantity}}`
-      );
-
-      const price =
-        parseFloat(item.price || 0) <= 0 ? 0.01 : parseFloat(item.price);
-
-      const quantity =
-        parseInt(item.quantity || 1) <= 0 ? 1 : parseInt(item.quantity);
-
-      return {
-        title: item.name,
-        quantity: quantity,
-        unit_price: price,
-        
-      };
-    });
-
-    console.log(
-      "Items FINALES a enviar a MP (deben tener precio > 0):",
-      itemsForPreference
-    );
-    console.log("Items FINAL a enviar a MP:", itemsForPreference);
-
-    if (itemsForPreference.length === 0) {
-      return res
-        .status(400)
-        .json({ error: "No hay productos válidos para procesar." });
-    }
-
     // Crear la preferencia con los items validados
     const data = await preference.create({
       body: {
         items: itemsForPreference,
         currency_id: "ARS",
+        external_reference: id_pedido_db.toString(),
         back_urls: {
           success: "https://www.google.com",
           failure: "https://www.google.com",
@@ -94,24 +120,33 @@ app.post("/create_preference", async (req, res) => {
         auto_return: "approved",
       },
     });
+    await connection.commit();
 
     console.log("Preferencia creada:", data);
 
     // Retornar la información de la preferencia
-    res.status(200).json({
-      preference_id: data.id,
-      preference_url: data.init_point || data.sandbox_init_point,
+
+    res.status(201).json({
+      message: "Orden creada y preferencia de pago generada exitosamente.",
+            id_pedido: id_pedido_db,
+            preference_id: data.id,
+            preference_url: data.init_point || data.sandbox_init_point,
     });
   } catch (error) {
-    
-    console.error("Error detallado de MP:", error);
-    console.error("Mensaje de error:", error.message);
-    
-    res
-      .status(500)
-      .json({ error: "Error al contactar MP", details: error.message });
-  }
-});
+    if (connection) {
+            await connection.rollback(); 
+            connection.release();
+        }
+        console.error("Error al crear la orden y preferencia de MP:", error);
+        res
+            .status(500)
+            .json({ error: "Error al procesar la orden.", details: error.message });
+    } finally {
+        if (connection) {
+            connection.release(); // Asegurar la liberación de la conexión
+        }
+    }
+  });
 
 // Montar las Rutas de Usuarios en el prefijo /api/users
 app.use("/api/users", usersRoutes);
@@ -144,20 +179,20 @@ app.post("/save_order", async (req, res) => {
   try {
     connection = await db.getConnection(); // Obtener una conexión del poolD
     await connection.beginTransaction();
-    console.log(normalizedPaymentMethod)
+    console.log(normalizedPaymentMethod,"qweaaaaaaaaaaaaaaaaaaaaaa")
     if  (normalizedPaymentMethod === "card") {
-        console.log(normalizedPaymentMethod)
+        console.log(normalizedPaymentMethod,"qwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww")
         // Estado inmediato para efectivo y tarjetas manuales
         orderStatus = "Pago con Tarjeta Credito"; // El pedido se confirma inmediatamente
-    }else if
+    }else if 
       (normalizedPaymentMethod === "cash" )
-      {orderStatus = "Pagado Efectivo"}
-     else {
-       
-        // Estado para Mercado Pago u otros pagos asíncronos
+      {orderStatus = "Pagado Efectivo"} 
+      else if (normalizedPaymentMethod.includes("mp")) {  // <-- Adaptar a tu identificador
+    orderStatus = "Pagado con MP";
+      }
+      else {
         orderStatus = "Pendiente";
-    } 
-
+      }
 
     // 1. Insertar el pedido en la tabla Pedidos
     const insertPedidoQuery = `
