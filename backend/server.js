@@ -132,27 +132,38 @@ app.post("/save_order", async (req, res) => {
   if (!cartItems || cartItems.length === 0) {
     return res.status(400).json({ error: "El carrito está vacío." });
   }
-  if (paymentMethod === "efectivo") {
-      const orderNumber = `EF-${Date.now()}`;
-        return res.status(201).json({ 
-          message: "Pedido de efectivo procesado inmediatamente.", 
-          id_pedido: 0, // 0 o null si no se inserta
-          orderNumber: orderNumber 
-      });
-    }
+  const normalizedPaymentMethod = (paymentMethod || 'efectivo').toLowerCase();
+
+  if (!cartItems || cartItems.length === 0) {
+    return res.status(400).json({ error: "El carrito está vacío." });
+  }
+
+
   let connection;
+  let orderStatus;
   try {
     connection = await db.getConnection(); // Obtener una conexión del poolD
     await connection.beginTransaction();
-
-    let orderStatus = "Pendiente";
+    console.log(normalizedPaymentMethod)
+    if  (normalizedPaymentMethod === "card") {
+        console.log(normalizedPaymentMethod)
+        // Estado inmediato para efectivo y tarjetas manuales
+        orderStatus = "Pago con Tarjeta Credito"; // El pedido se confirma inmediatamente
+    }else if
+      (normalizedPaymentMethod === "cash" )
+      {orderStatus = "Pagado Efectivo"}
+     else {
+       
+        // Estado para Mercado Pago u otros pagos asíncronos
+        orderStatus = "Pendiente";
+    } 
 
 
     // 1. Insertar el pedido en la tabla Pedidos
     const insertPedidoQuery = `
       INSERT INTO Pedidos 
-        (id_user, total, estado, id_transaccion_mp) 
-      VALUES (?, ?,  ?, ?)
+        (id_user, fecha_hora, total, estado, id_transaccion_mp) 
+      VALUES (?, NOW(), ?,  ?, ?)
     `;
     const [result] = await connection.execute(insertPedidoQuery, [
       id_user, 

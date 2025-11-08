@@ -551,8 +551,6 @@ async function handleCheckout(e) {
 
   if (paymentMethod === "mercadopago") {
     return;
-  }  else if (paymentMethod === 'efectivo'){
-
   } 
   const customerName = document.getElementById("customerName").value;
   const customerPhone = document.getElementById("customerPhone").value;
